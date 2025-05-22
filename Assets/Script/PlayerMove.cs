@@ -1,8 +1,9 @@
 using Unity.Android.Gradle.Manifest;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
-using UnityEngine.UIElements;
+using TMPro;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -10,7 +11,11 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] float rotSpeed = 8f;
     public float mouseX;
     public float mouseY;
+
     public Camera PlayerCam;
+
+    public float Sense;
+    public float Fov;
 
     private bool isPhoneUp;
     private float grav;
@@ -23,15 +28,20 @@ public class PlayerMove : MonoBehaviour
         ctrl = GetComponent<CharacterController>();
         mov = Vector3.zero;
         grav = 10f;
+        Sense = 1f;
+        Fov = 60f;
+        rotSpeed = 8* Sense;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q)) isPhoneUp = isPhoneUp ? false : true;
+        isPhoneUp = UIControl.Instance.isPhoneUp;
+        Sense = UIControl.Instance.curSense;
+        Fov = UIControl.Instance.curFov;
 
         if (isPhoneUp) rotSpeed = 0;
-        else rotSpeed = 8f;
+        else rotSpeed = 8 * Sense;
 
         mouseX += Input.GetAxis("Mouse X") * rotSpeed;
         this.transform.localEulerAngles = new Vector3(0, mouseX, 0);
@@ -48,5 +58,7 @@ public class PlayerMove : MonoBehaviour
         mouseY -= Input.GetAxis("Mouse Y") * rotSpeed;
         mouseY = Mathf.Clamp(mouseY, -70, 70);
         PlayerCam.transform.localEulerAngles = new Vector3(mouseY, 0, 0);
+
+        PlayerCam.fieldOfView = Fov;
     }
 }

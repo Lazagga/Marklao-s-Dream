@@ -2,17 +2,35 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIControl : MonoBehaviour
 {
-    private bool isPhoneUp;
+    public static UIControl Instance;
+
+    private void Awake()
+    {
+        UIControl.Instance = this;
+    }
+
+    public bool isPhoneUp;
     private bool isLightOn;
+    private bool isSettingChanged;
+
+    public float curSense;
+    public float curFov;
+
+    public Slider Sense;
+    public Slider Fov;
+    public TMP_Text SenseT;
+    public TMP_Text FovT;
 
     private Vector2 DownPos = new Vector2(100, -400);
     private Vector2 UpPos = new Vector2(100, 0);
 
     public Image Phone;
     public GameObject[] PhoneUI;
+    public GameObject CautionPopup;
     public GameObject PhoneLight;
 
     public float animTime = 1f;
@@ -51,8 +69,13 @@ public class UIControl : MonoBehaviour
     {
         isPhoneUp = false;
         isLightOn = false;
+        isSettingChanged = false;
+        CautionPopup.SetActive(false);
 
         CurrentState = state.Idle;
+
+        curSense = 1;
+        curFov = 60;
     }
 
     // Update is called once per frame
@@ -60,16 +83,24 @@ public class UIControl : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            isPhoneUp = isPhoneUp ? false : true;
-            if (isPhoneUp)
+            if (!isPhoneUp)
             {
+                isPhoneUp = true;
                 StopCoroutine("PhoneDown");
                 StartCoroutine("PhoneUp");
             }
             else
             {
-                StopCoroutine("PhoneUp");
-                StartCoroutine("PhoneDown");
+                if (isSettingChanged)
+                {
+                    CautionPopup.SetActive(true);
+                }
+                else
+                {
+                    StopCoroutine("PhoneUp");
+                    StartCoroutine("PhoneDown");
+                    isPhoneUp = false;
+                }
             }
         }
 
@@ -87,6 +118,12 @@ public class UIControl : MonoBehaviour
         }
 
         CurrnetCanvas();
+
+        if(CurrentState == state.Setting)
+        {
+            SenseT.text = "" + Sense.value / 10;
+            FovT.text = "" + Fov.value;
+        }
     }
 
     IEnumerator PhoneUp()
@@ -135,5 +172,36 @@ public class UIControl : MonoBehaviour
     public void Setting()
     {
         CurrentState = state.Setting;
+    }
+
+    public void OnSettingChanged()
+    {
+        isSettingChanged = true;
+    }
+
+    public void OnSave()
+    {
+        isSettingChanged = false;
+        curSense = Sense.value / 10;
+        curFov = Fov.value;
+        isPhoneUp = false;
+        StopCoroutine("PhoneUp");
+        StartCoroutine("PhoneDown");
+    }
+
+    public void OnCautionQuit()
+    {
+        Sense.value = curSense*10;
+        Fov.value = curFov;
+        isSettingChanged = false;
+        isPhoneUp = false;
+        StopCoroutine("PhoneUp");
+        StartCoroutine("PhoneDown");
+        CautionPopup.SetActive(false);
+    }
+
+    public void OnCautionRemain()
+    {
+        CautionPopup.SetActive(false);
     }
 }
