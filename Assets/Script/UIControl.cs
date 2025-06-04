@@ -10,8 +10,13 @@ public class UIControl : MonoBehaviour
 
     private void Awake()
     {
-        UIControl.Instance = this;
-    }
+        if (null == Instance)
+        {
+            UIControl.Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else Destroy(this.gameObject);
+    } 
 
     public bool isPhoneUp;
     private bool isLightOn;
