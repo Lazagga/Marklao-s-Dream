@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
 using TMPro;
+using System.Collections;
+using UnityEngine.Rendering.UI;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -18,16 +20,18 @@ public class PlayerMove : MonoBehaviour
     public float Fov;
 
     private bool isPhoneUp;
-    private float grav;
     private CharacterController ctrl;
     private Vector3 mov;
+
+    public float armlength = 3f;
+
+    private RaycastHit hit;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         ctrl = GetComponent<CharacterController>();
         mov = Vector3.zero;
-        grav = 10f;
         Sense = 1f;
         Fov = 60f;
         rotSpeed = 8* Sense;
@@ -46,13 +50,8 @@ public class PlayerMove : MonoBehaviour
         mouseX += Input.GetAxis("Mouse X") * rotSpeed;
         this.transform.localEulerAngles = new Vector3(0, mouseX, 0);
 
-        if (ctrl.isGrounded)
-        {
-            mov = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-            mov = ctrl.transform.TransformDirection(mov);
-        }
-        else mov.y -= grav * Time.deltaTime;
-
+        mov = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        mov = ctrl.transform.TransformDirection(mov);
         ctrl.Move(mov * Time.deltaTime * moveSpeed);
 
         mouseY -= Input.GetAxis("Mouse Y") * rotSpeed;
@@ -60,5 +59,41 @@ public class PlayerMove : MonoBehaviour
         PlayerCam.transform.localEulerAngles = new Vector3(mouseY, 0, 0);
 
         PlayerCam.fieldOfView = Fov;
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if(Physics.Raycast(PlayerCam.transform.position, transform.forward, out hit, armlength))
+            {
+                if(hit.transform.tag == "transive")
+                {
+                    StartCoroutine(OtherDoorOpen(hit));
+                }
+                if(hit.transform.tag == "door")
+                {
+                    StartCoroutine(DoorOpen(hit));
+                }
+            }
+        }
+    }
+
+    IEnumerator DoorOpen(RaycastHit door)
+    {
+        door.transform.gameObject.SetActive(false);
+        yield return new WaitForSeconds(2.0f);
+        door.transform.gameObject.SetActive(true);
+    }
+
+    IEnumerator OtherDoorOpen(RaycastHit door)
+    {
+        ctrl.enabled = false;
+        door.transform.GetChild(0).gameObject.SetActive(false);
+        if (transform.position.z > 8) transform.Translate(0, 0, -21, Space.World);
+        else if (transform.position.z < -8) transform.Translate(0, 0, +21, Space.World);
+        else if (transform.position.x > 6) transform.Translate(-19, 0, 0, Space.World);
+        else if (transform.position.x < -6) transform.Translate(19, 0, 0, Space.World);
+        ctrl.enabled = true;
+        yield return new WaitForSeconds(2.0f);
+        door.transform.GetChild(0).gameObject.SetActive(true);
+        
     }
 }
