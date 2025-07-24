@@ -16,9 +16,10 @@ public class UIControl : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
         }
         else Destroy(this.gameObject);
-    } 
+    }
 
     public bool isPhoneUp;
+    public bool isEvent;
     private bool isLightOn;
     private bool isSettingChanged;
 
@@ -72,7 +73,6 @@ public class UIControl : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        isPhoneUp = false;
         isLightOn = false;
         isSettingChanged = false;
         CautionPopup.SetActive(false);
@@ -94,11 +94,15 @@ public class UIControl : MonoBehaviour
                 StopCoroutine("PhoneDown");
                 StartCoroutine("PhoneUp");
             }
-            else
+            else if(!isEvent)
             {
                 if (isSettingChanged)
                 {
                     CautionPopup.SetActive(true);
+                }
+                else if (CurrentState == state.Call)
+                {
+
                 }
                 else
                 {
@@ -131,7 +135,7 @@ public class UIControl : MonoBehaviour
         }
     }
 
-    IEnumerator PhoneUp()
+    public IEnumerator PhoneUp()
     {
         WaitForSeconds wtf = new WaitForSeconds(Time.deltaTime / 2);
         float pastTime = 0f;

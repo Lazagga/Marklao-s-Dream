@@ -6,11 +6,12 @@ TagManager:
   tags:
   - transive
   - door
+  - Interactable
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - OutLined
   - Water
   - UI
   - 

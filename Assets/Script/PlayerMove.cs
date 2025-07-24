@@ -60,17 +60,32 @@ public class PlayerMove : MonoBehaviour
 
         PlayerCam.fieldOfView = Fov;
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if(Physics.Raycast(PlayerCam.transform.position, transform.forward, out hit, armlength))
+            //jump
+        }
+
+
+        if(Physics.Raycast(PlayerCam.transform.position, transform.forward, out hit, armlength))
+        {
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                if(hit.transform.tag == "transive")
+                if (hit.transform.tag == "transive")
                 {
                     StartCoroutine(OtherDoorOpen(hit));
                 }
-                if(hit.transform.tag == "door")
+                if (hit.transform.tag == "door")
                 {
                     StartCoroutine(DoorOpen(hit));
+                }
+            }
+
+            if(hit.transform.tag == "Interactable")
+            {
+                //highlight
+                if (Input.GetMouseButtonDown(0))
+                {
+                    //interact
                 }
             }
         }
