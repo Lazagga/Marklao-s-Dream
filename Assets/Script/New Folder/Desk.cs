@@ -9,6 +9,7 @@ public class Desk : MonoBehaviour, IInteractable
     public void Start()
     {
         myDoc = GetComponentInChildren<Document>();
+        if (myDoc == null) Debug.Log("Error: myDoc not Located!");
         __init__();
     }
 
