@@ -117,9 +117,5 @@ public class GameManager : MonoBehaviour
         }
 
         CompleteCommand(CommandType.PlaceDocumentsOnDesks);
-
-        foreach (var desk in desks)
-        {
-        }
     }
 }
