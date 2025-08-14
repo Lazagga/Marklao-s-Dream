@@ -4,7 +4,10 @@ public class Copier : MonoBehaviour, IInteractable
 {
     public void Interact()
     {
-        PlayerInventory.Instance.ChangeNumberDocument(1);
-        GameManager.Instance.CompleteCommand(CommandType.CopyDocument);
+        if (PlayerInventory.Instance.numberDocument > 0)
+        {
+            PlayerInventory.Instance.ChangeNumberDocument(1);
+            GameManager.Instance.CompleteCommand(CommandType.CopyDocument);
+        }
     }
 }
