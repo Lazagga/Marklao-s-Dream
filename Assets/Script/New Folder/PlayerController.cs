@@ -95,22 +95,31 @@ public class PlayerController : MonoBehaviour
 
     public void PlayerTeleport()
     {
+        Vector3 div = Vector3.zero, temp = Vector3.zero;
+
         if (transform.position.x > 6)
         {
-            transform.Translate(-18, 0, 0, Space.World);
+            temp = transform.position - new Vector3(9, 0.85f, 2.5f);
+            div = new Vector3(-temp.z, 0, temp.x);
+            yRotation -= 90;
         }
         else if (transform.position.x < -6)
         {
-            transform.Translate(18, 0, 0, Space.World);
+            temp = transform.position - new Vector3(-9, 0.85f, 2.5f);
+            div = new Vector3(temp.z, 0, -temp.x);
+            yRotation += 90;
         }
         else if (transform.position.z < -8)
         {
-            transform.Translate(0, 0, 22, Space.World);
+            temp = transform.position - new Vector3(0, 0.85f, -11);
+            div = new Vector3(-temp.x, 0, -temp.z);
+            yRotation += 180;
         }
         else if (transform.position.z > 8)
         {
-            transform.Translate(0, 0, -22, Space.World);
+            div = transform.position - new Vector3(0, 0.85f, 11);
         }
+        transform.position = new Vector3(0, 0.85f, -11) + div;
 
         Debug.Log("Teleport!");
     }
