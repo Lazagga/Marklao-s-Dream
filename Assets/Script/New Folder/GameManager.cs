@@ -5,6 +5,14 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public bool isSuccess;
+    public enum Step
+    {
+        Room = 0,
+        Corridor = 1,
+        Teleport = 2
+    }
+
+    public Step currentStep;
 
     [Header("Stage Settings")]
     public List<CommandData> easyCommands;
@@ -23,13 +31,13 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
-
-        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
         GenerateNextCommand();
+
+        currentStep = Step.Room;
     }
 
     public void GenerateNextCommand()
@@ -52,18 +60,12 @@ public class GameManager : MonoBehaviour
 
         signBoard.UpdateSign(currentCommand.description);
         resetDesks();
-        resetDoors();
         isSuccess = false;
     }
 
     public void resetDesks()
     {
         foreach(var desk in desks) desk.__init__();
-    }
-
-    public void resetDoors()
-    {
-        foreach(var door in doors) door.__init__();
     }
 
     private CommandDifficulty GetDifficultyByStage(int stage)
@@ -81,20 +83,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void LockOtherDoors(Door except)
+    public void OpenDoor(Door door)
     {
-        foreach(var door in doors)
-        {
-            if(door != except) door.LockDoor();
-        }
+        door.GetComponent<Animator>().SetBool("IsOpened", true);
+        Debug.Log("Door Opened!");
     }
-
     public void CloseDoor()
     {
         foreach (var door in doors)
         {
-            if (door.isLock == false) door.doorBody.transform.Rotate(0, -90, 0);
-        }    
+            door.gameObject.GetComponent<Animator>().SetBool("IsOpened", false);
+        }
+        Debug.Log("Door Closed!");
     }
 
     public void CheckAllDesks()

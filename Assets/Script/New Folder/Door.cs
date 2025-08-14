@@ -8,18 +8,10 @@ public class Door : MonoBehaviour, IInteractable
     public DoorDirection direction;
 
     public GameObject doorBody;
-    public float animTime = 3f;
-
-    public bool isLock = false;
-
-    public void __init__()
-    {
-        isLock = false;
-    }
 
     public void Interact()
     {
-        if (!isLock)
+        if (GameManager.Instance.currentStep == GameManager.Step.Room)
         {
             if (direction == DoorDirection.Front)
                 GameManager.Instance.CompleteCommand(CommandType.EnterFrontDoor);
@@ -30,14 +22,15 @@ public class Door : MonoBehaviour, IInteractable
             if (direction == DoorDirection.Right)
                 GameManager.Instance.CompleteCommand(CommandType.EnterRightDoor);
 
-            doorBody.transform.Rotate(0, 90, 0);
+            GameManager.Instance.OpenDoor(this);
 
-            GameManager.Instance.LockOtherDoors(this);
+            GameManager.Instance.currentStep = GameManager.Step.Corridor;
         }
-    }
 
-    public void LockDoor()
-    {
-        isLock = true;
+        if (GameManager.Instance.currentStep == GameManager.Step.Teleport)
+        {
+            GameManager.Instance.OpenDoor(this);
+            GameManager.Instance.currentStep = GameManager.Step.Room;
+        }
     }
 }

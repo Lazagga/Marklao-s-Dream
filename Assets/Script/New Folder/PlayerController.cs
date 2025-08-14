@@ -71,14 +71,22 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        PlayerTeleport();
         if (other.gameObject.tag == "Checker")
         {
-            if (GameManager.Instance.isSuccess)
+            if (GameManager.Instance.currentStep == GameManager.Step.Corridor)
             {
                 GameManager.Instance.CloseDoor();
-                
+                Invoke("PlayerTeleport", 1.5f);
                 GameManager.Instance.GenerateNextCommand();
+
+            }
+        }
+
+        if (other.gameObject.tag == "room")
+        {
+            if (GameManager.Instance.currentStep == GameManager.Step.Room)
+            {
+                GameManager.Instance.CloseDoor();
             }
         }
     }
@@ -101,5 +109,8 @@ public class PlayerController : MonoBehaviour
         {
             transform.Translate(0, 0, -22, Space.World);
         }
+
+        GameManager.Instance.currentStep = GameManager.Step.Teleport;
+        Debug.Log("Teleport!");
     }
 }
