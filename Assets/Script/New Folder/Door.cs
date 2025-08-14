@@ -7,8 +7,6 @@ public class Door : MonoBehaviour, IInteractable
     public enum DoorDirection { Front, Back, Left, Right }
     public DoorDirection direction;
 
-    public GameObject doorBody;
-
     public void Interact()
     {
         if (GameManager.Instance.currentStep == GameManager.Step.Room)

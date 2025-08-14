@@ -4,30 +4,30 @@ using UnityEngine;
 public class Desk : MonoBehaviour, IInteractable
 {
     public bool HasDocument { get; private set; }
-    private GameObject myDoc;
+    private Document myDoc;
 
     public void Start()
     {
-        myDoc = GetComponentInChildren<Document>().gameObject;
+        myDoc = GetComponentInChildren<Document>();
         __init__();
     }
 
     public void __init__()
     {
-        myDoc.SetActive(false);
+        myDoc.gameObject.SetActive(false);
         HasDocument = false;
     }
     public void Interact()
     {
         if (PlayerInventory.Instance.numberDocument > 0 && !HasDocument)
         {
-            myDoc.SetActive(true);
+            myDoc.gameObject.SetActive(true);
             HasDocument = true;
             PlayerInventory.Instance.ChangeNumberDocument(-1);
         }
         else if (HasDocument)
         {
-            myDoc.SetActive(false);
+            myDoc.gameObject.SetActive(false);
             HasDocument = false;
             PlayerInventory.Instance.ChangeNumberDocument(1);
         }

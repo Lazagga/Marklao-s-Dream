@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    public bool isSuccess;
+    public bool isSuccess = false;
     public enum Step
     {
         Room = 0,
@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
 
     public void GenerateNextCommand()
     {
-        stageLevel++;
+        if(isSuccess) stageLevel++;
         CommandDifficulty difficulty = GetDifficultyByStage(stageLevel);
 
         switch (difficulty)
@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
         }
 
         signBoard.UpdateSign(currentCommand.description);
+        Debug.Log("Stage : " + stageLevel + "\ncommand : " + currentCommand.description);
         
         resetRoom(); // Reset Room
 

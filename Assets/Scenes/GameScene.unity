@@ -593,8 +593,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isSuccess: 0
   currentStep: 0
-  easyCommands: []
-  mediumCommands: []
+  easyCommands:
+  - {fileID: 11400000, guid: b045847a29f329c4fa691ae70da71718, type: 2}
+  - {fileID: 11400000, guid: 0a5378d63e5b689468b91ceb1b75f7df, type: 2}
+  mediumCommands:
+  - {fileID: 11400000, guid: b46523ff09ec45449bbd8cd1309a68da, type: 2}
   hardCommands: []
   signBoard: {fileID: 1366709979}
   desks:
@@ -5126,7 +5129,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   direction: 3
-  doorBody: {fileID: 738916957}
 --- !u!65 &738916962
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5897,7 +5899,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   direction: 2
-  doorBody: {fileID: 842663195}
 --- !u!65 &842663200
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10372,7 +10373,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 083408a098748a6449d822b50420fe99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SignText: {fileID: 0}
+  SignText: {fileID: 388089432}
 --- !u!1 &1428568508 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 83a57c5765e277548a3a5aa228a892a3, type: 3}
@@ -11571,7 +11572,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   direction: 1
-  doorBody: {fileID: 1529230459}
 --- !u!65 &1529230464
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11847,7 +11847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2115263014488038797, guid: 8f6edc295b33d234ab362fc8716f1b35, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.37
       objectReference: {fileID: 0}
     - target: {fileID: 2115263014488038797, guid: 8f6edc295b33d234ab362fc8716f1b35, type: 3}
       propertyPath: m_LocalPosition.y
@@ -11855,7 +11855,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2115263014488038797, guid: 8f6edc295b33d234ab362fc8716f1b35, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5.657575
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 2115263014488038797, guid: 8f6edc295b33d234ab362fc8716f1b35, type: 3}
       propertyPath: m_LocalRotation.w
@@ -15580,7 +15580,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   direction: 0
-  doorBody: {fileID: 2102635341}
 --- !u!65 &2102635346
 BoxCollider:
   m_ObjectHideFlags: 0

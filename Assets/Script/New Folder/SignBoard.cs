@@ -7,8 +7,7 @@ public class SignBoard : MonoBehaviour
 
     private void Awake()
     {
-        if (SignText == null)
-            SignText = GetComponentInChildren<TextMeshPro>();
+        
     }
 
     public void UpdateSign(string message)

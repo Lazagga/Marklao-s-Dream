@@ -78,7 +78,8 @@ public class PlayerController : MonoBehaviour
                 GameManager.Instance.currentStep = GameManager.Step.Teleport;
                 GameManager.Instance.CloseDoor();
                 Invoke("PlayerTeleport", 1.5f);
-                if (GameManager.Instance.isSuccess) GameManager.Instance.GenerateNextCommand();
+                GameManager.Instance.GenerateNextCommand();
+                if (GameManager.Instance.isSuccess) ; // When Success
                 else; // When Failed
             }
         }
