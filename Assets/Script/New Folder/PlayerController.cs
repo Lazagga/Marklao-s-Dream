@@ -75,10 +75,11 @@ public class PlayerController : MonoBehaviour
         {
             if (GameManager.Instance.currentStep == GameManager.Step.Corridor)
             {
+                GameManager.Instance.currentStep = GameManager.Step.Teleport;
                 GameManager.Instance.CloseDoor();
                 Invoke("PlayerTeleport", 1.5f);
                 if (GameManager.Instance.isSuccess) GameManager.Instance.GenerateNextCommand();
-                else;
+                else; // When Failed
             }
         }
 
@@ -105,12 +106,11 @@ public class PlayerController : MonoBehaviour
         {
             transform.Translate(0, 0, 22, Space.World);
         }
-        else if (transform.position.z < -8)
+        else if (transform.position.z > 8)
         {
             transform.Translate(0, 0, -22, Space.World);
         }
 
-        GameManager.Instance.currentStep = GameManager.Step.Teleport;
         Debug.Log("Teleport!");
     }
 }
