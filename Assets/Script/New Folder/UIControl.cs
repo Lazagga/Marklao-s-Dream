@@ -13,7 +13,6 @@ public class UIControl : MonoBehaviour
         if (null == Instance)
         {
             UIControl.Instance = this;
-            DontDestroyOnLoad(this.gameObject);
         }
         else Destroy(this.gameObject);
     }
@@ -34,6 +33,7 @@ public class UIControl : MonoBehaviour
     private Vector2 DownPos = new Vector2(100, -400);
     private Vector2 UpPos = new Vector2(100, 0);
 
+    public Image fade;
     public Image Phone;
     public GameObject[] PhoneUI;
     public GameObject CautionPopup;
@@ -164,6 +164,28 @@ public class UIControl : MonoBehaviour
     public void OnCall()
     {
         CurrentState = state.Call;
+        StartCoroutine(CheckCall());
+    }
+
+    public IEnumerator CheckCall()
+    {
+        float pastTime = 0f;
+        Color color = fade.color;
+        while (pastTime < 3)
+        {
+            color.a = pastTime / 3;
+            fade.color = color;
+            yield return null;
+        }
+
+        if (GameManager.Instance.isSuccess)
+        {
+            //When player SUCCESSED
+        }
+        else
+        {
+            //When player FAILED
+        }
     }
 
     public void OnLight()

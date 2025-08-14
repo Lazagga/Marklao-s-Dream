@@ -59,10 +59,16 @@ public class GameManager : MonoBehaviour
         }
 
         signBoard.UpdateSign(currentCommand.description);
-        resetDesks();
+        
+        resetRoom(); // Reset Room
+
         isSuccess = false;
     }
 
+    public void resetRoom()
+    {
+        resetDesks();
+    }
     public void resetDesks()
     {
         foreach(var desk in desks) desk.__init__();
