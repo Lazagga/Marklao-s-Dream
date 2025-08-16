@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
             Ray ray = new(cam.transform.position, cam.transform.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
             {
-                IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+                IInteractable interactable = hit.collider.GetComponent<IInteractable>();    //hit한 콜라이더 들고 와서
                 if (interactable != null)
                 {
                     interactable.Interact();
