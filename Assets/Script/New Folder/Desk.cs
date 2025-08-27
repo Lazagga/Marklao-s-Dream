@@ -8,7 +8,7 @@ public class Desk : MonoBehaviour, IInteractable
 
     public void Start()
     {
-        myDoc = GetComponentInChildren<Document>();
+        myDoc = GetComponentInChildren<Document>();                         //자식에 있는 스크립트 불러옴
         if (myDoc == null) Debug.Log("Error: myDoc not Located!");
         __init__();
     }

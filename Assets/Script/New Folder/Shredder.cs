@@ -10,11 +10,16 @@ public class Shredder : MonoBehaviour, IInteractable
             GameManager.Instance.CompleteCommand(CommandType.ShredDocument);
         }
 
-        else
+        else if(PlayerInventory.Instance.heldingObj == 0)
         {
             PlayerInventory.Instance.PlayerHp--;
             if(PlayerInventory.Instance.PlayerHp == 0)
                 GameManager.Instance.CompleteCommand(CommandType.DieInShredder);
+        }
+        else if(PlayerInventory.Instance.heldingObj == (int)PlayerInventory.obj_name.doll)
+        {
+            //doll kill
+            PlayerInventory.Instance.interact_obj(PlayerInventory.Instance.heldingObj);
         }
     }
 }
