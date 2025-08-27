@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     public Door[] doors;
 
     private CommandData currentCommand;
-    private int stageLevel = 1;
+    public int stageLevel = 1;
 
     private void Awake()
     {
