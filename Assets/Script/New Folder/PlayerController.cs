@@ -1,101 +1,100 @@
-using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
-using System.Collections.Generic;
+using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    private float interactRange = 3f;
+    private const float InteractRange = 3f;
 
     [Header("Movement")]
-    public float moveSpeed;
-    float h, v;
-    public float mouseSpeed;
-    float yRotation, xRotation;
-    Camera cam;
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float baseMouseSpeed = 2f;
+
+    private float yRotation, xRotation;
+    private Camera cam;
+    private CharacterController ctrl;
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
         cam = Camera.main;
+        ctrl = GetComponent<CharacterController>();
     }
 
-    void Update()
+    private void Update()
     {
-        Move();
-        Rotate();
-        Interact();
-    }
+        bool phoneUp = UIControl.Instance != null && UIControl.Instance.isPhoneUp;
 
-    void Move()
-    {
-        h = Input.GetAxisRaw("Horizontal");
-        v = Input.GetAxisRaw("Vertical");
-
-        Vector3 moveVec = transform.forward * v + transform.right * h;
-
-        transform.position += moveVec.normalized * moveSpeed * Time.deltaTime;
-    }
-
-    void Rotate()
-    {
-        float mouseX = Input.GetAxisRaw("Mouse X") * mouseSpeed * Time.deltaTime;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSpeed * Time.deltaTime;
-
-        yRotation += mouseX;
-        xRotation -= mouseY;
-
-        xRotation = Mathf.Clamp(xRotation, -80f, 80f);
-
-        cam.transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-        transform.rotation = Quaternion.Euler(0, yRotation, 0);
-    }
-
-    void Interact()
-    {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (!phoneUp)
         {
-            Ray ray = new(cam.transform.position, cam.transform.forward);
-            if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
+            Move();
+            Interact();
+
+            if (Cursor.lockState == CursorLockMode.Locked)
             {
-                IInteractable interactable = hit.collider.GetComponent<IInteractable>();    //hit한 콜라이더 들고 와서
-                if (interactable != null)
-                {
-                    interactable.Interact();
-                }
+                float sense = UIControl.Instance != null ? UIControl.Instance.curSense : 1f;
+                yRotation += Input.GetAxisRaw("Mouse X") * baseMouseSpeed * sense;
+                xRotation = Mathf.Clamp(xRotation - Input.GetAxisRaw("Mouse Y") * baseMouseSpeed * sense, -80f, 80f);
             }
         }
     }
 
+    private void LateUpdate()
+    {
+        transform.rotation = Quaternion.Euler(0, yRotation, 0);
+        cam.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
+
+        if (UIControl.Instance != null)
+            cam.fieldOfView = UIControl.Instance.curFov;
+    }
+
+    private void Move()
+    {
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+        Vector3 moveVec = (transform.forward * v + transform.right * h).normalized;
+        ctrl.Move(moveVec * moveSpeed * Time.deltaTime);
+    }
+
+    private void Interact()
+    {
+        if (!Input.GetKeyDown(KeyCode.E)) return;
+
+        Ray ray = new(cam.transform.position, cam.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, InteractRange))
+            hit.collider.GetComponent<IInteractable>()?.Interact();
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Checker")
+        if (other.CompareTag("Checker"))
         {
             if (GameManager.Instance.currentStep == GameManager.Step.Corridor)
             {
                 GameManager.Instance.currentStep = GameManager.Step.Teleport;
                 GameManager.Instance.CloseDoor();
-                Invoke("PlayerTeleport", 1.5f);
+                StartCoroutine(TeleportAfterDelay(1.5f));
                 GameManager.Instance.GenerateNextCommand();
-                if (GameManager.Instance.isSuccess) ; // When Success
-                else; // When Failed
             }
         }
 
-        if (other.gameObject.tag == "room")
+        if (other.CompareTag("room"))
         {
             if (GameManager.Instance.currentStep == GameManager.Step.Room)
-            {
                 GameManager.Instance.CloseDoor();
-            }
         }
     }
 
-    public void PlayerTeleport()
+    private IEnumerator TeleportAfterDelay(float delay)
     {
-        Vector3 div = Vector3.zero, temp = Vector3.zero;
+        yield return new WaitForSeconds(delay);
+        PlayerTeleport();
+    }
+
+    private void PlayerTeleport()
+    {
+        Vector3 div = Vector3.zero, temp;
 
         if (transform.position.x > 6)
         {
@@ -119,8 +118,9 @@ public class PlayerController : MonoBehaviour
         {
             div = transform.position - new Vector3(0, 0.85f, 11);
         }
-        transform.position = new Vector3(0, 0.85f, -11) + div;
 
-        Debug.Log("Teleport!");
+        ctrl.enabled = false;
+        transform.position = new Vector3(0, 0.85f, -11) + div;
+        ctrl.enabled = true;
     }
 }

@@ -1,52 +1,37 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MapControl : MonoBehaviour
 {
-    public Dictionary<string, string> success = new Dictionary<string, string>();
+    [SerializeField] private MapLayoutData layoutData;
 
-    private int SignCount;
-    private bool successAble;
-    private string rightDoor;
-    public GameObject Sign;
+    private readonly List<GameObject> spawnedObjects = new();
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
-        
+        if (layoutData != null)
+            ApplyLayout();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void ApplyLayout()
     {
-        
-    }
+        foreach (var obj in spawnedObjects)
+            if (obj != null) Destroy(obj);
+        spawnedObjects.Clear();
 
-    string randomKey()
-    {
-        List<string> keys = new List<string>(success.Keys);
-        int randIndex = Random.Range(0, keys.Count);
-        string randKey = keys[randIndex];
-        return randKey;
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if(successAble)
+        foreach (var p in layoutData.placements)
         {
-            if(collision.gameObject.tag == rightDoor)
-            {
-
-            }
-            else
-            {
-
-            }
+            if (p.prefab == null) continue;
+            var go = Instantiate(p.prefab, p.position, Quaternion.Euler(p.eulerRotation), transform);
+            go.transform.localScale = p.scale;
+            spawnedObjects.Add(go);
         }
-        else
-        {
+    }
 
-        }
+    // 런타임 중 레이아웃 교체
+    public void ApplyLayout(MapLayoutData data)
+    {
+        layoutData = data;
+        ApplyLayout();
     }
 }

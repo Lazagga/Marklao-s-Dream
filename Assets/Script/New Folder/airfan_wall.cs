@@ -4,41 +4,25 @@ using UnityEngine;
 public class airfan_wall : MonoBehaviour, IInteractable
 {
     public GameObject wing;
-    public int state = 0;           //0¡§¡ˆ : 1¿€µø
+    private bool isOn = false;  // false = Í∫ºÏßê, true = ÏºúÏßê
 
-    public void Start()
+    private void Start()
     {
-        __init__();
-    }
-
-    public void __init__()
-    {
-        state = 0;
+        isOn = false;
     }
 
     public void Interact()
     {
-        if(state == 0)
-        {
-            state = 1;
-            StartCoroutine(rotate());
-        }
-        else
-        {
-            state = 0;
-        }
-
+        isOn = !isOn;
+        if (isOn) StartCoroutine(Rotate());
     }
 
-
-
-    public IEnumerator rotate()
+    private IEnumerator Rotate()
     {
-        while(true)
+        while (isOn)
         {
             wing.transform.Rotate(30, 0, 0);
             yield return new WaitForSeconds(0.1f);
-            if (state == 0) yield break;
         }
     }
 }

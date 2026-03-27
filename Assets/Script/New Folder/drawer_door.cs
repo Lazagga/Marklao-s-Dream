@@ -1,80 +1,35 @@
 using System.Collections;
 using UnityEngine;
 
-public class drawer_door : MonoBehaviour, IInteractable
+public class drawer_door : BaseDoor
 {
-    public GameObject door;
-    public int door_state = 0;
+    private static readonly Vector3 OpenOffset = new(0f, 0f, 0.4f);
 
-    public void Start()
+    protected override IEnumerator OpenCoroutine()
     {
-        door = this.gameObject;
-        __init__();
+        doorState = DoorState.Animating;
+        yield return AnimateTranslation(OpenOffset);
+        doorState = DoorState.Open;
     }
 
-    public void __init__()
+    protected override IEnumerator CloseCoroutine()
     {
-        ;
+        doorState = DoorState.Animating;
+        yield return AnimateTranslation(-OpenOffset);
+        doorState = DoorState.Closed;
     }
 
-    public void Interact()
+    private IEnumerator AnimateTranslation(Vector3 delta)
     {
-        if (door_state == 0)      //문이 닫혀있는 경우
-        {
-            StartCoroutine(door_open());
-        }
-        else if(door_state == 1)
-        {
-            StartCoroutine(door_close());
-        }
-
-    }
-
-    public IEnumerator door_open()
-    {
-        door_state = 2;
-
-
-        Vector3 startPos = this.transform.position;  // 초기 상태
-        Vector3 endPos = this.transform.position + new Vector3(0.0f, 0.0f, 0.4f);      // 열렸을 때
-
+        Vector3 start = transform.position;
+        Vector3 end = start + delta;
         float t = 0f;
-        float duration = 1f;
-
         while (t < 1f)
         {
-            t += Time.deltaTime / duration;
-            door.transform.position = Vector3.Lerp(startPos, endPos, t);
+            t += Time.deltaTime / AnimDuration;
+            transform.position = Vector3.Lerp(start, end, t);
             yield return null;
         }
-
-        door.transform.position = endPos;
-
-
-        door_state = 1;
-    }
-
-    public IEnumerator door_close()
-    {
-        door_state = 2;
-
-
-        Vector3 startPos = this.transform.position;  // 초기 상태
-        Vector3 endPos = this.transform.position - new Vector3(0.0f, 0.0f, 0.4f);      // 열렸을 때
-
-        float t = 0f;
-        float duration = 1f;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / duration;
-            door.transform.position = Vector3.Lerp(startPos, endPos, t);
-            yield return null;
-        }
-
-        door.transform.position = endPos;
-
-
-        door_state = 0;
+        transform.position = end;
     }
 }

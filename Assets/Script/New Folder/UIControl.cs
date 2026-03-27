@@ -1,20 +1,16 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UI;
 using TMPro;
 
 public class UIControl : MonoBehaviour
 {
-    public static UIControl Instance;
+    public static UIControl Instance { get; private set; }
 
     private void Awake()
     {
-        if (null == Instance)
-        {
-            UIControl.Instance = this;
-        }
-        else Destroy(this.gameObject);
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
     public bool isPhoneUp;
@@ -30,8 +26,8 @@ public class UIControl : MonoBehaviour
     public TMP_Text SenseT;
     public TMP_Text FovT;
 
-    private Vector2 DownPos = new Vector2(100, -400);
-    private Vector2 UpPos = new Vector2(100, 0);
+    private readonly Vector2 DownPos = new(100, -400);
+    private readonly Vector2 UpPos = new(100, 0);
 
     public Image fade;
     public Image Phone;
@@ -41,129 +37,111 @@ public class UIControl : MonoBehaviour
 
     public float animTime = 1f;
 
-    public enum state
-    {
-        Idle,
-        Call,
-        Guide,
-        Setting
-    }
+    public enum PhoneState { Idle, Call, Guide, Setting }
+    public PhoneState CurrentState;
 
-    public state CurrentState;
+    private Coroutine phoneCoroutine;
 
-    public void CurrnetCanvas()
+    public void UpdateCanvas()
     {
-        foreach (GameObject canvas in PhoneUI) { canvas.SetActive(false); }
+        foreach (var canvas in PhoneUI) canvas.SetActive(false);
         switch (CurrentState)
         {
-            case state.Idle:
-                break;
-            case state.Call:
-                PhoneUI[0].SetActive(true);
-                break;
-            case state.Guide:
-                PhoneUI[1].SetActive(true);
-                break;
-            case state.Setting:
-                PhoneUI[2].SetActive(true);
-                break;
+            case PhoneState.Call:    PhoneUI[0].SetActive(true); break;
+            case PhoneState.Guide:   PhoneUI[1].SetActive(true); break;
+            case PhoneState.Setting: PhoneUI[2].SetActive(true); break;
         }
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
         isLightOn = false;
         isSettingChanged = false;
         CautionPopup.SetActive(false);
-
-        CurrentState = state.Idle;
-
+        CurrentState = PhoneState.Idle;
         curSense = 1;
         curFov = 60;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
             if (!isPhoneUp)
             {
                 isPhoneUp = true;
-                StopCoroutine("PhoneDown");
-                StartCoroutine("PhoneUp");
+                SetPhoneCoroutine(PhoneUp());
             }
-            else if(!isEvent)
+            else if (!isEvent)
             {
                 if (isSettingChanged)
                 {
                     CautionPopup.SetActive(true);
                 }
-                else if (CurrentState == state.Call)
+                else if (CurrentState != PhoneState.Call)
                 {
-
-                }
-                else
-                {
-                    StopCoroutine("PhoneUp");
-                    StartCoroutine("PhoneDown");
                     isPhoneUp = false;
+                    SetPhoneCoroutine(PhoneDown());
                 }
             }
         }
 
-        if(isPhoneUp)
+        if (isPhoneUp)
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
-
         else
         {
-            CurrentState = state.Idle;
+            CurrentState = PhoneState.Idle;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
 
-        CurrnetCanvas();
+        UpdateCanvas();
 
-        if(CurrentState == state.Setting)
+        if (CurrentState == PhoneState.Setting)
         {
-            SenseT.text = "" + Sense.value / 10;
-            FovT.text = "" + Fov.value;
+            SenseT.text = (Sense.value / 10).ToString();
+            FovT.text = Fov.value.ToString();
         }
+    }
+
+    private void SetPhoneCoroutine(IEnumerator routine)
+    {
+        if (phoneCoroutine != null) StopCoroutine(phoneCoroutine);
+        phoneCoroutine = StartCoroutine(routine);
     }
 
     public IEnumerator PhoneUp()
     {
-        WaitForSeconds wtf = new WaitForSeconds(Time.deltaTime / 2);
         float pastTime = 0f;
         while (pastTime < animTime)
         {
-            Phone.rectTransform.anchoredPosition = Vector2.Lerp(Phone.rectTransform.anchoredPosition, UpPos, pastTime / animTime);
-            pastTime += Time.deltaTime / 2;
-            yield return wtf;
+            Phone.rectTransform.anchoredPosition = Vector2.Lerp(
+                Phone.rectTransform.anchoredPosition, UpPos, pastTime / animTime);
+            pastTime += Time.deltaTime;
+            yield return null;
         }
         Phone.rectTransform.anchoredPosition = UpPos;
     }
 
-    IEnumerator PhoneDown()
+    private IEnumerator PhoneDown()
     {
-        WaitForSeconds wtf = new WaitForSeconds(Time.deltaTime / 2);
         float pastTime = 0f;
         while (pastTime < animTime)
         {
-            Phone.rectTransform.anchoredPosition = Vector2.Lerp(Phone.rectTransform.anchoredPosition, DownPos, pastTime / animTime);
-            pastTime += Time.deltaTime / 2;
-            yield return wtf;
+            Phone.rectTransform.anchoredPosition = Vector2.Lerp(
+                Phone.rectTransform.anchoredPosition, DownPos, pastTime / animTime);
+            pastTime += Time.deltaTime;
+            yield return null;
         }
         Phone.rectTransform.anchoredPosition = DownPos;
     }
 
     public void OnCall()
     {
-        CurrentState = state.Call;
+        CurrentState = PhoneState.Call;
         StartCoroutine(CheckCall());
     }
 
@@ -171,38 +149,38 @@ public class UIControl : MonoBehaviour
     {
         float pastTime = 0f;
         Color color = fade.color;
-        while (pastTime < 3)
+        while (pastTime < 3f)
         {
-            color.a = pastTime / 3;
+            color.a = pastTime / 3f;
             fade.color = color;
+            pastTime += Time.deltaTime;
             yield return null;
         }
 
         if (GameManager.Instance.isSuccess)
         {
-            //When player SUCCESSED
+            // When player SUCCEEDED
         }
         else
         {
-            //When player FAILED
+            // When player FAILED
         }
     }
 
     public void OnLight()
     {
-        isLightOn = isLightOn?false:true;
-        if (isLightOn) PhoneLight.SetActive(true);
-        else PhoneLight.SetActive(false);
+        isLightOn = !isLightOn;
+        PhoneLight.SetActive(isLightOn);
     }
 
     public void OnGuide()
     {
-        CurrentState = state.Guide;
+        CurrentState = PhoneState.Guide;
     }
 
     public void Setting()
     {
-        CurrentState = state.Setting;
+        CurrentState = PhoneState.Setting;
     }
 
     public void OnSettingChanged()
@@ -216,19 +194,17 @@ public class UIControl : MonoBehaviour
         curSense = Sense.value / 10;
         curFov = Fov.value;
         isPhoneUp = false;
-        StopCoroutine("PhoneUp");
-        StartCoroutine("PhoneDown");
+        SetPhoneCoroutine(PhoneDown());
     }
 
     public void OnCautionQuit()
     {
-        Sense.value = curSense*10;
+        Sense.value = curSense * 10;
         Fov.value = curFov;
         isSettingChanged = false;
         isPhoneUp = false;
-        StopCoroutine("PhoneUp");
-        StartCoroutine("PhoneDown");
         CautionPopup.SetActive(false);
+        SetPhoneCoroutine(PhoneDown());
     }
 
     public void OnCautionRemain()

@@ -1,92 +1,42 @@
 using System.Collections;
 using UnityEngine;
 
-public class file_storage_door : MonoBehaviour, IInteractable
+public class file_storage_door : BaseDoor
 {
-    public enum side {       //왼쪽은 y기준 + , 오른쪽은 y기준 - 
-        left = 0,
-        right = 1
-    }
-    public side where;
+    public enum Side { Left, Right }
+    public Side where;
 
-
-    public GameObject door;
-    public int door_state = 0;
-
-    public void Start()
+    protected override IEnumerator OpenCoroutine()
     {
-        door = this.gameObject;
-        __init__();
+        doorState = DoorState.Animating;
+        Quaternion delta = where == Side.Left
+            ? Quaternion.Euler(0f, 90f, 0f)
+            : Quaternion.Euler(0f, -90f, 0f);
+        yield return AnimateRotation(delta);
+        doorState = DoorState.Open;
     }
 
-    public void __init__()
+    protected override IEnumerator CloseCoroutine()
     {
-        ;
+        doorState = DoorState.Animating;
+        Quaternion delta = where == Side.Left
+            ? Quaternion.Euler(0f, -90f, 0f)
+            : Quaternion.Euler(0f, 90f, 0f);
+        yield return AnimateRotation(delta);
+        doorState = DoorState.Closed;
     }
 
-    public void Interact()
+    private IEnumerator AnimateRotation(Quaternion deltaRot)
     {
-        if (door_state == 0)      //문이 닫혀있는 경우
-        {
-            StartCoroutine(door_open());
-        }
-        else if (door_state == 1)
-        {
-            StartCoroutine(door_close());
-        }
-
-    }
-
-    public IEnumerator door_open()
-    {
-        door_state = 2;
-
-
-        Quaternion startRot = transform.localRotation;
-        Quaternion endRot;
-        if (where == side.left) { endRot = transform.localRotation * Quaternion.Euler(0f, 90f, 0f); }
-        else { endRot = transform.localRotation * Quaternion.Euler(0f, -90f, 0f); }
-        
+        Quaternion start = transform.localRotation;
+        Quaternion end = start * deltaRot;
         float t = 0f;
-        float duration = 1f;
-
         while (t < 1f)
         {
-            t += Time.deltaTime / duration;
-            door.transform.localRotation = Quaternion.Lerp(startRot, endRot, t);
+            t += Time.deltaTime / AnimDuration;
+            transform.localRotation = Quaternion.Lerp(start, end, t);
             yield return null;
         }
-
-        door.transform.localRotation = endRot;
-
-
-        door_state = 1;
-    }
-
-
-    public IEnumerator door_close()
-    {
-        door_state = 2;
-
-
-        Quaternion startRot = transform.localRotation;
-        Quaternion endRot;
-        if (where == side.left) { endRot = transform.localRotation * Quaternion.Euler(0f, -90f, 0f); }
-        else { endRot = transform.localRotation * Quaternion.Euler(0f, 90f, 0f); }
-
-        float t = 0f;
-        float duration = 1f;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime / duration;
-            door.transform.localRotation = Quaternion.Lerp(startRot, endRot, t);
-            yield return null;
-        }
-
-        door.transform.localRotation = endRot;
-
-
-        door_state = 0;
+        transform.localRotation = end;
     }
 }
